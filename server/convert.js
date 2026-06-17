@@ -124,7 +124,7 @@ export async function convert(buf, filename, log) {
             await writeFile(tmpFile, buf);
             const md = await runMarkitdown(tmpFile);
             await unlink(tmpFile).catch(() => {});
-            if (md && md.trim()) return { markdown: md.trim(), engine: 'markitdown', kind };
+            if (md && md.trim()) return { markdown: tidy(md), engine: 'markitdown', kind };
             mdError = 'markitdown returned empty output';
         } catch (e) {
             mdError = e.message || String(e);
@@ -142,4 +142,14 @@ function sanitize(name) {
 
 function stripBom(s) {
     return s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
+}
+
+// Normalize whitespace: markitdown (esp. on PDFs) emits runs of blank lines and
+// trailing spaces that read as "shredded". Collapse them without touching content.
+function tidy(md) {
+    return stripBom(md)
+        .replace(/\r\n/g, '\n')            // CRLF → LF
+        .replace(/[ \t]+$/gm, '')          // trailing spaces per line
+        .replace(/\n{3,}/g, '\n\n')        // 3+ blank lines → one blank line
+        .trim();
 }
