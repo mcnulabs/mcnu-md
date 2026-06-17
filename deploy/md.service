@@ -1,0 +1,32 @@
+# /etc/systemd/system/mcnu-md.service
+[Unit]
+Description=MCNU MD (anything-to-markdown converter)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=mcnumd
+Group=mcnumd
+WorkingDirectory=/opt/mcnu-md
+ExecStart=/usr/bin/node server/index.js
+Environment=NODE_ENV=production
+EnvironmentFile=-/opt/mcnu-md/.env
+Restart=always
+RestartSec=3
+
+# Hardening. NOTE: this service shells out to `markitdown` (Python) and writes
+# temp files. PrivateTmp gives it an isolated /tmp it can write to freely.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+# No ReadWritePaths needed: no .data dir; temp work happens in PrivateTmp.
+
+[Install]
+WantedBy=multi-user.target

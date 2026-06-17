@@ -1,0 +1,69 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>404 — MCNU Labs</title><meta name="theme-color" content="#0A0E1A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--cy:#22D3EE;--vi:#A78BFA;--bg:#0A0E1A;--ink:#E6ECF7;--mut:#8893A8;--line:#222c46}
+*{box-sizing:border-box;margin:0}html,body{height:100%}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden;
+  min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;padding:28px;position:relative}
+#bg{position:absolute;inset:0;z-index:0}
+.glow{position:absolute;inset:0;z-index:0;background:radial-gradient(55% 45% at 50% 12%,rgba(124,58,237,.26),transparent 70%),radial-gradient(50% 55% at 50% 100%,rgba(14,116,144,.26),transparent 70%);pointer-events:none}
+.inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px}
+canvas#lg{image-rendering:pixelated;filter:drop-shadow(0 8px 26px rgba(124,58,237,.4))}
+.glitch{font-family:"Press Start 2P",monospace;font-size:clamp(56px,16vw,140px);color:#fff;position:relative;letter-spacing:6px;line-height:1}
+.glitch::before,.glitch::after{content:attr(data-t);position:absolute;left:0;top:0;width:100%;height:100%}
+.glitch::before{color:var(--cy);z-index:-1;animation:g1 2.4s infinite steps(2) alternate-reverse}
+.glitch::after{color:var(--vi);z-index:-1;animation:g2 3.1s infinite steps(2) alternate-reverse}
+@keyframes g1{0%{clip-path:inset(8% 0 80% 0);transform:translate(-3px,-2px)}20%{clip-path:inset(50% 0 30% 0);transform:translate(3px,1px)}40%{clip-path:inset(20% 0 60% 0);transform:translate(-2px,2px)}60%{clip-path:inset(70% 0 5% 0);transform:translate(2px,-1px)}80%{clip-path:inset(35% 0 45% 0);transform:translate(-3px,0)}100%{clip-path:inset(10% 0 75% 0);transform:translate(2px,2px)}}
+@keyframes g2{0%{clip-path:inset(60% 0 20% 0);transform:translate(3px,1px)}25%{clip-path:inset(15% 0 70% 0);transform:translate(-3px,-1px)}50%{clip-path:inset(45% 0 35% 0);transform:translate(2px,2px)}75%{clip-path:inset(80% 0 5% 0);transform:translate(-2px,1px)}100%{clip-path:inset(25% 0 60% 0);transform:translate(3px,-2px)}}
+.glitch.burst{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-4px,2px)}40%{transform:translate(5px,-2px)}60%{transform:translate(-3px,-3px)}80%{transform:translate(4px,3px)}}
+.tag{font-family:"Press Start 2P",monospace;font-size:clamp(10px,2.6vw,15px);color:var(--cy);letter-spacing:2px}
+.sub{color:var(--mut);max-width:520px;font-size:1.02rem;line-height:1.65}
+.sub b{color:var(--ink)}
+.btns{display:flex;gap:13px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+.btn{font-family:"Press Start 2P",monospace;font-size:10px;padding:14px 17px;border-radius:8px;border:2px solid var(--cy);background:var(--cy);color:var(--bg);cursor:pointer;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--cy)}.btn:hover{transform:translateY(-2px)}
+.err{position:absolute;bottom:18px;z-index:2;font-family:ui-monospace,monospace;font-size:12px;color:#3b455c}
+.scan{position:absolute;inset:0;z-index:3;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.18) 2px 3px);mix-blend-mode:multiply;opacity:.5}
+@media(prefers-reduced-motion:reduce){#bg{display:none}.glitch::before,.glitch::after{animation:none}.scan{display:none}}
+</style></head>
+<body>
+<canvas id="bg"></canvas><div class="glow"></div><div class="scan"></div>
+<div class="inner">
+  <canvas id="lg" width="78" height="60"></canvas>
+  <div class="glitch" id="num" data-t="404">404</div>
+  <div class="tag" id="tag">GRADIENT NOT FOUND</div>
+  <p class="sub">This page <b>diverged</b>. The path you followed points to somewhere that doesn't exist in our space — like chasing a gradient into a local minimum that isn't there. Let's descend back to solid ground.</p>
+  <div class="btns">
+    <a class="btn" href="/">← BACK TO CONVERTER</a>
+    <button class="btn ghost" id="retry">RETRY ∇</button>
+  </div>
+</div>
+<div class="err" id="err">PageNotFoundError: loss = NaN · step 404 · no path to ∇</div>
+<script>
+// pixel logo
+const _M=["##.........##","###.......###","##.#######.##","##..#####..##","##..#####..##","##...###...##","##...###...##","##....#....##","##.........##","##.........##"];
+const _IN=new Set();_M.forEach((r,y)=>{if(y>=2&&y<=7)for(let x=3;x<=9;x++)if(r[x]==='#')_IN.add(y+','+x);});
+function _F(x,y){return y>=0&&y<_M.length&&x>=0&&x<_M[0].length&&_M[y][x]==='#';}
+(function(){const c=document.getElementById('lg'),x=c.getContext('2d'),cell=5.6;for(let y=0;y<_M.length;y++)for(let X=0;X<_M[0].length;X++)if(_M[y][X]==='#'){const I=_IN.has(y+','+X),cy={b:'#22D3EE',h:'#7DE8F8',s:'#0E7490'},vi={b:'#A78BFA',h:'#C9B8FD',s:'#6D28D9'},p=I?vi:cy;let col=p.b;if(!_F(X,y-1)||!_F(X-1,y))col=p.h;else if(!_F(X,y+1)||!_F(X+1,y))col=p.s;x.fillStyle=col;x.fillRect(X*cell,y*cell,cell,cell);}})();
+// drifting nabla field
+const cv=document.getElementById('bg'),ctx=cv.getContext('2d');
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+let W,H,gs=[];const NAB=["#######",".#####.","..###..","...#..."];
+function size(){W=innerWidth;H=innerHeight;const d=devicePixelRatio||1;cv.width=W*d;cv.height=H*d;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);
+  gs=[];const n=Math.floor(W*H/32000);for(let i=0;i<n;i++)gs.push({x:Math.random()*W,y:Math.random()*H,s:1+Math.random()*2,vy:5+Math.random()*12,a:.05+Math.random()*.08,c:Math.random()<.5?'#22D3EE':'#A78BFA'});}
+function draw(){ctx.clearRect(0,0,W,H);for(const g of gs){ctx.globalAlpha=g.a;ctx.fillStyle=g.c;for(let y=0;y<NAB.length;y++)for(let x=0;x<NAB[0].length;x++)if(NAB[y][x]==='#')ctx.fillRect(g.x+x*g.s,g.y+y*g.s,g.s,g.s);g.y+=reduce?0:g.vy*.016;if(g.y>H+20){g.y=-20;g.x=Math.random()*W;}}ctx.globalAlpha=1;requestAnimationFrame(draw);}
+size();addEventListener('resize',size);requestAnimationFrame(draw);
+// occasional scramble
+const num=document.getElementById('num');const GL=['4Ø4','4∇4','NaN','40▚','4Ø4'];
+function scramble(burst){const o=num.dataset.t;let i=0;const seq=burst?6:3;const t=setInterval(()=>{num.dataset.t=num.textContent=GL[(Math.random()*GL.length)|0];if(++i>=seq){clearInterval(t);num.dataset.t=num.textContent='404';}},70);}
+if(!reduce) setInterval(()=>scramble(false),4200);
+// retry: glitch burst + chiptune error blip
+let actx=null;
+function blip(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();
+  const t=actx.currentTime;[ [330,0],[247,0.12],[165,0.24] ].forEach(([f,d])=>{const o=actx.createOscillator(),g=actx.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.12,t+d+.01);g.gain.exponentialRampToValueAtTime(.0005,t+d+.14);o.connect(g).connect(actx.destination);o.start(t+d);o.stop(t+d+.16);});}catch(e){}}
+document.getElementById('retry').onclick=()=>{blip();num.classList.add('burst');scramble(true);setTimeout(()=>num.classList.remove('burst'),360);};
+</script>
+</body></html>

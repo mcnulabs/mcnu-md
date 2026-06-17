@@ -1,0 +1,38 @@
+/* MCNU MD specifics — converter UI. */
+.md-wrap { max-width: 860px; }
+
+.hero { text-align: center; padding: 18px 0 6px; }
+.hero-title { font-size: clamp(13px, 4vw, 20px); color: #fff; letter-spacing: 1px; line-height: 1.6; margin-bottom: 12px; }
+.hero-title .nab { color: var(--vi); }
+.hero .muted { max-width: 540px; margin: 0 auto; font-size: 14px; line-height: 1.6; }
+
+/* drop zone */
+.drop-card { padding: 0; overflow: hidden; border-style: dashed; border-color: var(--line); transition: border-color .15s, background .15s; }
+.drop-card.drag { border-color: var(--cy); background: rgba(34,211,238,.06); }
+.drop-inner, .drop-busy { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 52px 24px; text-align: center; min-height: 200px; }
+.drop-icon { font-size: 44px; color: var(--vi); line-height: 1; filter: drop-shadow(0 6px 18px rgba(124,58,237,.4)); }
+.drop-main { font-size: 16px; color: var(--ink); }
+.drop-sub { font-size: 12.5px; }
+.link-btn { background: none; border: none; color: var(--cy); font: inherit; cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+.link-btn:hover { filter: brightness(1.15); }
+
+/* spinner */
+.spinner { width: 34px; height: 34px; border: 3px solid var(--line); border-top-color: var(--cy); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2s; } }
+
+/* result */
+.result-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.result-meta { font-size: 12px; margin-top: 4px; }
+.result-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.md-output { width: 100%; min-height: 360px; max-height: 70vh; background: #0b1020; border: 1px solid var(--line); color: var(--ink);
+    border-radius: 10px; padding: 16px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.6; resize: vertical; tab-size: 2; }
+.md-output:focus { outline: none; border-color: var(--cy); }
+
+.err-line { background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.35); border-radius: 9px; padding: 12px 14px; color: #f87171; font-size: 13.5px; }
+
+@media (max-width: 560px) {
+    .drop-inner, .drop-busy { padding: 38px 18px; }
+    .result-actions { width: 100%; }
+    .result-actions .btn { flex: 1; }
+}

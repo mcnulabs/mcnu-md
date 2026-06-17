@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCNU MD — Anything to Markdown</title>
+    <meta name="description" content="Drop a PDF, Word, Excel, PowerPoint, HTML or text file and get clean Markdown back. Free, private, no sign-up.">
+    <meta name="theme-color" content="#0A0E1A">
+    <link rel="icon" href="/brand/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/md.css">
+</head>
+<body>
+    <canvas id="bg"></canvas>
+    <div class="glow"></div>
+
+    <header class="topbar">
+        <a class="brand" href="/">
+            <img class="logo" src="/brand/nabla.svg" alt="" width="34">
+            <span><b>MCNU</b><small>MD</small></span>
+        </a>
+        <div class="topbar-right">
+            <span class="updated" id="engineBadge"></span>
+        </div>
+    </header>
+
+    <main class="wrap md-wrap">
+        <section class="hero">
+            <h1 class="px hero-title">ANYTHING <span class="nab">∇</span> MARKDOWN</h1>
+            <p class="muted">Drop a file — PDF, Word, Excel, PowerPoint, HTML, CSV or text — and get clean Markdown back. No sign-up, nothing stored.</p>
+        </section>
+
+        <section class="drop-card card" id="dropCard">
+            <input type="file" id="fileInput" hidden>
+            <div class="drop-inner" id="dropInner">
+                <div class="drop-icon">∇</div>
+                <p class="drop-main">Drag a file here, or <button type="button" class="link-btn" id="browseBtn">browse</button></p>
+                <p class="drop-sub muted" id="dropSub">PDF · DOCX · XLSX · PPTX · HTML · CSV · TXT — up to 25&nbsp;MB</p>
+            </div>
+            <div class="drop-busy" id="dropBusy" hidden>
+                <div class="spinner"></div>
+                <p class="muted" id="busyText">Converting…</p>
+            </div>
+        </section>
+
+        <div class="err-line" id="err" hidden></div>
+
+        <section class="result-card card" id="resultCard" hidden>
+            <div class="result-head">
+                <div>
+                    <div class="sec-h"><span class="nab">∇</span> MARKDOWN</div>
+                    <div class="result-meta muted" id="resultMeta"></div>
+                </div>
+                <div class="result-actions">
+                    <button class="btn" id="copyBtn">COPY</button>
+                    <button class="btn" id="dlBtn">DOWNLOAD .md</button>
+                </div>
+            </div>
+            <textarea id="output" class="md-output" spellcheck="false" readonly></textarea>
+        </section>
+    </main>
+
+    <footer>MCNU LABS · FOLLOW THE GRADIENT <span class="v">∇</span></footer>
+
+    <script src="/nabla-bg.js"></script>
+    <script src="/app.js"></script>
+</body>
+</html>
