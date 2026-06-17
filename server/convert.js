@@ -187,12 +187,22 @@ function repairText(s) {
     return s;
 }
 
-// Normalize whitespace: markitdown (esp. on PDFs) emits runs of blank lines and
-// trailing spaces that read as "shredded". Collapse them without touching content.
+// Normalize whitespace: older markitdown (esp. on PDFs) emits "shredded" output —
+// every fragment on its own line, a stray bullet marker on a line by itself, and a
+// blank line between everything. Collapse that without merging real paragraphs.
 function tidy(md) {
-    return repairText(stripBom(md))
+    let s = repairText(stripBom(md))
         .replace(/\r\n/g, '\n')            // CRLF → LF
-        .replace(/[ \t]+$/gm, '')          // trailing spaces per line
-        .replace(/\n{3,}/g, '\n\n')        // 3+ blank lines → one blank line
-        .trim();
+        .replace(/[ \t]+$/gm, '');         // trailing spaces per line
+
+    // Drop lines that are ONLY an orphan list/bullet marker (•, -, *, –, —) with no
+    // text — these are layout artifacts from PDF extraction, not real list items.
+    s = s.replace(/^[ \t]*[•·▪◦‣*\-–—][ \t]*$/gm, '');
+
+    // Collapse any run of 2+ blank lines down to a single blank line. (A single blank
+    // line is a real paragraph break in Markdown, so we keep one — but not the long
+    // runs that shredding produces.)
+    s = s.replace(/\n[ \t]*\n(?:[ \t]*\n)+/g, '\n\n');
+
+    return s.trim();
 }
