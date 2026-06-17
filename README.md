@@ -64,10 +64,23 @@ npm run dev # node --watch server/index.js (auto-restart on changes)
 The Node fallback covers PDF, Word, Excel, CSV, HTML, and text out of the box. For the widest coverage and best output quality — and for PowerPoint support — install markitdown:
 
 ```bash
-pipx install 'markitdown[all]'
+pipx install 'markitdown[pdf,docx,pptx,xlsx]'
 ```
 
 Make sure the `markitdown` command is on the server's `PATH` (or point `MARKITDOWN_CMD` at its full path). Without it, the service runs Node-only and PowerPoint conversions will return an error.
+
+> **⚠️ Python version matters.** markitdown's modern releases (0.1.x) require **Python 3.10–3.12**. On a brand-new Python (e.g. 3.14) some dependencies fail to build and pipx silently falls back to the ancient `0.0.2`, which extracts far less text from complex PDFs. If `markitdown --version` reports `0.0.2`, reinstall against a supported interpreter:
+>
+> ```bash
+> # install a supported Python (Ubuntu; use deadsnakes PPA if not in the default repo)
+> sudo apt install -y python3.12 python3.12-venv
+>
+> # recreate the markitdown venv with it
+> pipx install --force --python python3.12 'markitdown[pdf,docx,pptx,xlsx]'
+> markitdown --version   # should be 0.1.x
+> ```
+>
+> We install the `[pdf,docx,pptx,xlsx]` extras rather than `[all]` on purpose — `[all]` pulls in audio/YouTube dependencies that aren't needed for document conversion and often break the build on newer Python.
 
 ---
 
