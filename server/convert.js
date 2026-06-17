@@ -109,9 +109,11 @@ function htmlToMd(html) {
 }
 
 // ---- public entry ----
-// Returns { markdown, engine, kind }. Throws on hard failure.
-export async function convert(buf, filename) {
+// Returns { markdown, engine, kind, mdError? }. Throws only on hard failure
+// (both engines unusable). mdError carries why markitdown was skipped, if it was.
+export async function convert(buf, filename, log) {
     const { kind } = detectKind(filename);
+    let mdError = null;
 
     // markitdown first (if available and not a trivially-text file).
     if (await markitdownAvailable() && kind !== 'text') {
@@ -123,14 +125,15 @@ export async function convert(buf, filename) {
             const md = await runMarkitdown(tmpFile);
             await unlink(tmpFile).catch(() => {});
             if (md && md.trim()) return { markdown: md.trim(), engine: 'markitdown', kind };
-            // empty output → fall through to Node
-        } catch (_) {
-            // markitdown failed on this file → fall through to Node fallback
+            mdError = 'markitdown returned empty output';
+        } catch (e) {
+            mdError = e.message || String(e);
         }
+        if (mdError && log) log.warn({ mdError, filename, kind }, 'markitdown failed; using Node fallback');
     }
 
     const md = await nodeFallback(buf, kind, filename);
-    return { markdown: md, engine: 'node', kind };
+    return { markdown: md, engine: 'node', kind, mdError };
 }
 
 function sanitize(name) {

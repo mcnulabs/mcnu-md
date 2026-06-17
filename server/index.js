@@ -84,9 +84,9 @@ app.post('/api/convert', async (req, reply) => {
 
     const filename = data.filename || 'file';
     try {
-        const { markdown, engine, kind } = await convert(buf, filename);
+        const { markdown, engine, kind, mdError } = await convert(buf, filename, req.log);
         conversions++;
-        return { ok: true, markdown, engine, kind, filename, bytes: buf.length };
+        return { ok: true, markdown, engine, kind, filename, bytes: buf.length, mdError };
     } catch (e) {
         req.log.warn({ err: e.message, filename }, 'convert failed');
         return reply.code(422).send({ error: e.message || 'Conversion failed.' });

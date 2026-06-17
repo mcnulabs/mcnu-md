@@ -1,4 +1,6 @@
 /* MCNU MD specifics — converter UI. */
+/* The hidden attribute must always win over our flex/grid displays. */
+[hidden] { display: none !important; }
 .md-wrap { max-width: 860px; }
 
 .hero { text-align: center; padding: 18px 0 6px; }
