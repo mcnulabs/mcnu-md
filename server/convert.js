@@ -133,7 +133,7 @@ export async function convert(buf, filename, log) {
     }
 
     const md = await nodeFallback(buf, kind, filename);
-    return { markdown: md, engine: 'node', kind, mdError };
+    return { markdown: tidy(md), engine: 'node', kind, mdError };
 }
 
 function sanitize(name) {
@@ -144,10 +144,53 @@ function stripBom(s) {
     return s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
 }
 
+// Repair mangled text from PDFs — chiefly LaTeX-generated ones, where accented
+// letters are emitted as a base letter + a separate accent glyph (not Unicode NFC).
+// Romanian (ă â î ș ț) is the common victim, plus a few Western-European accents.
+function repairText(s) {
+    // 1) Unicode NFC — folds genuine combining marks (U+0300..U+036F) onto their base.
+    s = s.normalize('NFC');
+
+    // Accent glyphs LaTeX leaves behind when it can't emit a precomposed letter.
+    //   ˘ U+02D8 breve · ˆ U+02C6 circumflex · ¸ U+00B8 cedilla · ı/ȷ dotless i/j
+    const BREVE = '˘', CIRC = 'ˆ', DOTLESS_I = 'ı', DOTLESS_J = 'ȷ', CEDILLA = '¸';
+
+    // Does this document actually look LaTeX-mangled? If none of these glyphs are
+    // present, the text is clean — skip ALL repair so we never touch good prose.
+    const mangled = s.includes(BREVE) || s.includes(CIRC) || s.includes(CEDILLA) || s.includes(DOTLESS_I);
+    if (!mangled) return s;
+
+    // 2) Modifier-letter accents that sit BEFORE or AFTER the base letter.
+    const pairs = [
+        [BREVE + 'a', 'ă'], ['a' + BREVE, 'ă'], [BREVE + 'A', 'Ă'], ['A' + BREVE, 'Ă'],
+        [CIRC + 'a', 'â'], ['a' + CIRC, 'â'], [CIRC + 'A', 'Â'], ['A' + CIRC, 'Â'],
+        [CIRC + 'i', 'î'], ['i' + CIRC, 'î'], [CIRC + 'I', 'Î'], ['I' + CIRC, 'Î'],
+        [CIRC + DOTLESS_I, 'î'], [DOTLESS_I + CIRC, 'î'],
+        ['s' + CEDILLA, 'ș'], ['t' + CEDILLA, 'ț'], ['S' + CEDILLA, 'Ș'], ['T' + CEDILLA, 'Ț'],
+        [CEDILLA + 's', 'ș'], [CEDILLA + 't', 'ț'], [CEDILLA + 'S', 'Ș'], [CEDILLA + 'T', 'Ț'],
+    ];
+    for (const [from, to] of pairs) s = s.split(from).join(to);
+
+    // 3) Comma-below printed as a LITERAL comma directly followed by a letter
+    //    (e.g. "s,ir", "construct,ia", "s,i"). A real comma is followed by a space
+    //    or end-of-clause, so the letter-lookahead distinguishes them. Doubly safe:
+    //    this whole block only runs when `mangled` is true.
+    s = s.replace(/([sS]),(?=\p{L})/gu, (_, c) => (c === 's' ? 'ș' : 'Ș'))
+         .replace(/([tT]),(?=\p{L})/gu, (_, c) => (c === 't' ? 'ț' : 'Ț'));
+
+    // 4) Stray dotless i/j with no accent → normal i/j.
+    s = s.split(DOTLESS_I).join('i').split(DOTLESS_J).join('j');
+
+    // 5) Drop any orphan accent glyphs that didn't bind to a letter.
+    s = s.replace(new RegExp(`[${BREVE}${CIRC}${CEDILLA}]`, 'g'), '');
+
+    return s;
+}
+
 // Normalize whitespace: markitdown (esp. on PDFs) emits runs of blank lines and
 // trailing spaces that read as "shredded". Collapse them without touching content.
 function tidy(md) {
-    return stripBom(md)
+    return repairText(stripBom(md))
         .replace(/\r\n/g, '\n')            // CRLF → LF
         .replace(/[ \t]+$/gm, '')          // trailing spaces per line
         .replace(/\n{3,}/g, '\n\n')        // 3+ blank lines → one blank line
